@@ -206,10 +206,21 @@
           responseTimeChart.destroy();
         }
         myData = shikai.data.getDataSeris(transaction_name);
+        var time_map = shikai.data.getFilter();
+        var transaction_stats = shikai.data.getTransactionStats(transaction_name);
         responseTimeChart = new Highcharts.StockChart({
           chart : {
             renderTo : 'container',
-            zoomType : 'x'
+            zoomType : 'x',
+            ignoreHiddenSeries : false,
+            events : {
+              selection : function() {
+                //var transaction_stats = shikai.data.getTransactionStats(transaction_name);
+                //console.log(this.get('transaction_pie').data);
+                //var tobj = this.get('transaction_pie').data;
+
+              }
+            }
           },
           rangeSelector : {
             buttons : [{
@@ -238,10 +249,29 @@
             ordinal : false,
             maxZoom : 10000, // three days
             events : {
-              afterSetExtremes : function() {
-                renderStatsTable(shikai.data.getStats(this.getExtremes().min, this.getExtremes().max));
+              afterSetExtremes : function(event) {
+                var min_time = this.getExtremes().min;
+                var max_time = this.getExtremes().max;
+                shikai.data.setFilter({
+                  filter_start_time : min_time,
+                  filter_end_time : max_time
+                });
+                renderStatsTable(shikai.data.getStats(min_time, max_time));
+                var transaction_stats = shikai.data.getTransactionStats(transaction_name);
+                responseTimeChart.get('transaction_pie').setData([{
+                  name : 'Success',
+                  y : transaction_stats.ok,
+                  color : '#A0B228'
+                }, {
+                  name : 'Failures',
+                  y : transaction_stats.ko,
+                  color : '#FF0000'
+                }], true);
+
               }
-            }
+            },
+            min : time_map.filter_start_time,
+            max : time_map.filter_end_time
           },
           yAxis : [{
             min : 0,
@@ -269,14 +299,15 @@
             yAxis : 0
           }, {
             type : 'pie',
-            name : 'Distribution',
+            name : 'Transactions',
+            id : 'transaction_pie',
             data : [{
               name : 'Success',
-              y : myData.ok,
+              y : transaction_stats.ok,
               color : '#A0B228'
             }, {
               name : 'Failures',
-              y : myData.ko,
+              y : transaction_stats.ko,
               color : '#FF0000'
             }],
             center : [820, -20],
@@ -285,14 +316,19 @@
             dataLabels : {
               enabled : false
             }
+          }, {
+            id : 'full_duration',
+            data : [[time_map.data_start_time, 0], [time_map.data_end_time, 0]]
           }],
           title : {
-            text : '<span class="chart_title chart_title_">Response Time</span><br>' + transaction_name,
+            text : '<span class="chart_title chart_title_">Response Time</span><br><em>' + transaction_name+'</em>',
             useHTML : true
           }
         });
 
-        renderStatsTable(shikai.data.getStats(responseTimeChart.xAxis[0].getExtremes().min, responseTimeChart.xAxis[0].getExtremes().max));
+        responseTimeChart.get('full_duration').hide();
+
+        renderStatsTable(shikai.data.getStats(time_map.filter_start_time, time_map.filter_end_time));
 
       }
     </script>

@@ -1,16 +1,11 @@
 shikai.data = ( function() {
     //---------------- BEGIN MODULE SCOPE VARIABLES --------------
-    var configMap = {
-      settable_map : {
-        color_name : true
-      },
-      color_name : 'blue'
-    }, stateMap = {
-      $container : null
-    }, jqueryMap = {}, dataMap, statsMap = {}, loadFile, getStats, getDataSeris;
-
+    var dataMap, statsMap = {};    
     var responseTimeMap = {};
     var dataStartTime = 0, dataEndTime = 0;
+    var filterStartTime = 0, filterEndTime = 0;
+    
+    var loadFile, getStats, getDataSeris, getFilter, setFilter;
     //----------------- END MODULE SCOPE VARIABLES ---------------
 
     //------------------- BEGIN UTILITY METHODS ------------------
@@ -43,17 +38,13 @@ shikai.data = ( function() {
         var transaction_name, is_success, timestamp, response_time;
         var first_transaction_name;
 
-        //dataMap = $.csv.toObjects(e.target.result);
         dataMap = $.csv.toArrays(e.target.result);
 
         responseTimeMap = {};
         dataStartTime = 0;
         dataEndTime = 0;
 
-        for ( i = 0; i < dataMap.length; i++) {
-          //transaction_name = dataMap[i].label;
-          //is_success = (dataMap[i].success.toLowerCase() === 'true');
-          //timestamp = dataMap[i].timeStamp;
+        for ( i = 0; i < dataMap.length; i++) {         
 
           transaction_name = dataMap[i][2];
           if (first_transaction_name === undefined) {
@@ -71,22 +62,17 @@ shikai.data = ( function() {
 
           response_time = dataMap[i][1];
           if (responseTimeMap[transaction_name] === undefined) {
-            //koMap[transaction_name] = 0;
-            //koMap[transaction_name] = 0;
             responseTimeMap[transaction_name] = [];
           }
-          //okMap[transaction_name]++;
           responseTimeMap[transaction_name].push({
             timestamp : timestamp,
             response_time : parseInt(response_time, 10),
             is_success : is_success
           });
-          //if (is_success) {
 
-          //} else {
-          //  koMap[transaction_name]++;
-          //}
-        }        
+        }
+        filterStartTime = dataStartTime;
+        filterEndTime = dataEndTime;     
         renderResponseTimeChart(first_transaction_name);
       };
       var text = reader.readAsText(file);
@@ -197,7 +183,7 @@ shikai.data = ( function() {
       var i;
       var time_list = [];
       var ok = 0, ko = 0;
-      
+
       for ( i = 0; i < responseTimeMap[transaction_name].length; i++) {
         if (responseTimeMap[transaction_name][i].is_success) {
           ok++;
@@ -215,16 +201,55 @@ shikai.data = ( function() {
         return a[0] - b[0];
       });
 
-      
-      return {data : series, ok : ok, ko : ko};
+      return {
+        data : series,
+        ok : ok,
+        ko : ko
+      };
     };
     //End public method /getDataSeris/
+    
+    getFilter = function() {
+      return {
+        data_start_time : dataStartTime,
+        data_end_time : dataEndTime,
+        filter_start_time : filterStartTime,
+        filter_end_time : filterEndTime
+      };
+    };
+    
+    setFilter = function(filter_map) {
+      filterStartTime = filter_map.filter_start_time;
+      filterEndTime = filter_map.filter_end_time;
+    };
+    
+    getTransactionStats = function(transaction_name) {
+      var ok = 0, ko = 0;
+      
+      for ( i = 0; i < responseTimeMap[transaction_name].length; i++) {
+        if (responseTimeMap[transaction_name][i].timestamp >= filterStartTime 
+          && responseTimeMap[transaction_name][i].timestamp <= filterEndTime) {
+          if (responseTimeMap[transaction_name][i].is_success) {
+            ok++;
+          } else {
+            ko++;
+          }
+        }
+      }      
+      return {
+        ok : ok,
+        ko : ko
+      };
+    };
 
     // return public methods
     return {
       loadFile : loadFile,
       getStats : getStats,
-      getDataSeris : getDataSeris
+      getDataSeris : getDataSeris,
+      getFilter : getFilter,
+      setFilter : setFilter,
+      getTransactionStats : getTransactionStats
     };
     //------------------- END PUBLIC METHODS ---------------------
 
