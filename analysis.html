@@ -1,0 +1,300 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="style/style.css"/>
+    <title>Jmeter Analyzer</title>
+  </head>
+  <body>
+    <div class="frise"></div>
+    <div class="container details">
+      <div class="head">
+        <img alt="Panda" src="style/logo-panda.png"/>
+      </div>
+      <div class="main">
+        <div class="cadre">
+
+          <div class="content">
+            <div class="sous-menu">
+              <div class="item ouvert">
+                <span>Open</span>
+                <input type="file" id="jmeter_file" name="jmeter_file"/>
+              </div>
+              <p class="sim_desc"></p>
+            </div>
+            <div class="content-in">
+              <div class="article">
+
+                <div class="schema geant">
+                  <div id="container" class="geant"></div>
+                </div>
+
+                <div class="statistics extensible-geant" id="ex3">
+                  <div class="titre">
+                    STATISTICS
+                  </div>
+                  <table id="container_statistics" class="statistics-in extensible-geant">
+                    <thead>
+                      <tr>
+                        <th rowspan="2" class="header sortable"><span>Requests</span></th>
+                        <th rowspan="2"></th>
+                        <th colspan="3" class="header"><span class="executions">Executions</span></th>
+                        <th rowspan="2"></th>
+                        <th colspan="7" class="header"><span class="response-time">Response Time (ms)<span></th>
+                      </tr>
+                      <tr>
+                        <th class="header sortable"><span>Total</span></th>
+                        <th class="header sortable"><span>OK</span></th>
+                        <th class="header sortable"><span>KO</span></th>
+                        <th class="header sortable"><span>Min</span></th>
+                        <th class="header sortable"><span>Max</span></th>
+                        <th class="header sortable"><span>Mean</span></th>
+                        <th class="header sortable"><span>Std Dev</span></th>
+                        <th class="header sortable"><span>90th pct</span></th>
+                        <th class="header sortable"><span>95th pct</span></th>
+                        <th class="header sortable"><span>Req/min</span></th>
+                      </tr>
+                    </thead>
+                    <tbody></tbody>
+                  </table>
+                </div>
+
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="foot">
+      <!--<div align="middle"><img alt="Gatling" src="style/logo-gatling.jpg"/></div>-->
+    </div>
+
+    <script src="js/lib/jquery.js"></script>
+    <script src="js/lib/jquery.tablesorter.min.js"></script>
+    <script src="js/lib/jquery.csv.min.js"></script>
+
+    <script src="js/lib/highcharts.js"></script>
+    <script src="js/lib/highcharts-more.js"></script>
+    <script src="js/lib/highstock.js"></script>
+
+    <script src="js/theme.js"></script>
+    <script src="js/shikai.js"></script>
+    <script src="js/shikai.data.js"></script>
+
+    <script>
+      $(document).ready(function() {
+
+        function handleFileSelect(evt) {
+          var files = evt.target.files;
+          shikai.data.loadFile(files[0]);
+        }
+
+
+        document.getElementById("jmeter_file").addEventListener("change", handleFileSelect, false);
+
+        $('#container_statistics').tablesorter({
+          cssAsc : "sorted-down",
+          cssDesc : "sorted-up",
+          headers : {
+            1 : {
+              sorter : false
+            },
+            2 : {
+              sorter : false
+            },
+            3 : {
+              sorter : false
+            },
+            4 : {
+              sorter : false
+            }
+          }
+          //ortList : [[0, 0]]
+        });
+
+      });
+
+      function toHTMLTableRow(array) {
+        var row = '<tr>';
+        $.each(array, function(i, value) {
+          row += '<td';
+          if (value.style)
+            row += ' class="' + value.style + '"';
+          row += '>' + value.content + '</td>';
+        });
+        return row + '</tr>';
+      }
+
+      function renderStatsTable(stats) {
+
+        var i = 0;
+
+        $('#container_statistics tbody').html("");
+
+        $.each(stats, function(request, values) {
+          var url;
+
+          url = 'req_' + request + '.html';
+
+          var transaction_name = values.name;
+          if (transaction_name.length > 24) {
+            transaction_name2 = transaction_name.substring(0, 20) + " ...";
+          } else {
+            transaction_name2 = transaction_name;
+          }
+
+          $('#container_statistics tbody').append(toHTMLTableRow([{
+            //content : '<a href="' + url + '">' + transaction_name + '</a><span style="display:none;">;' + i + '</span>',
+            content : '<a class="transaction_link" href="' + transaction_name + '">' + transaction_name2 + '</a>',
+            style : "total"
+          }, {
+            content : "",
+            style : ""
+          }, {
+            content : values.numberOfRequests.total,
+            style : "value total"
+          }, {
+            content : values.numberOfRequests.ok,
+            style : "value ok"
+          }, {
+            content : values.numberOfRequests.ko,
+            style : "value ko"
+          }, {
+            content : "",
+            style : ""
+          }, {
+            content : values.minResponseTime.total,
+            style : "value total"
+          }, {
+            content : values.maxResponseTime.total,
+            style : "value total"
+          }, {
+            content : values.meanResponseTime.total,
+            style : "value total"
+          }, {
+            content : values.standardDeviation.total,
+            style : "value total"
+          }, {
+            content : values.percentiles1.total,
+            style : "value total"
+          }, {
+            content : values.percentiles2.total,
+            style : "value total"
+          }, {
+            content : values.meanNumberOfRequestsPerSecond.total,
+            style : "value total"
+          }]));
+
+          i += 1;
+        });
+
+        $("#container_statistics tbody").trigger("update");
+        $("a").click(function(event) {
+          event.preventDefault();
+          renderResponseTimeChart($(this).attr("href"));
+        });
+
+      }
+    </script>
+
+    <script>
+      var responseTimeChart;
+      function renderResponseTimeChart(transaction_name) {
+        if (responseTimeChart) {
+          responseTimeChart.destroy();
+        }
+        myData = shikai.data.getDataSeris(transaction_name);
+        responseTimeChart = new Highcharts.StockChart({
+          chart : {
+            renderTo : 'container',
+            zoomType : 'x'
+          },
+          rangeSelector : {
+            buttons : [{
+              type : 'minute',
+              count : 1,
+              text : '1m'
+            }, {
+              type : 'minute',
+              count : 10,
+              text : '10m'
+            }, {
+              type : 'hour',
+              count : 1,
+              text : '1h'
+            }, {
+              type : 'all',
+              count : 1,
+              text : 'All'
+            }],
+            selected : 3,
+            inputEnabled : false
+          },
+          xAxis : {
+            id : 'elapsed_time_axis',
+            type : 'datetime',
+            ordinal : false,
+            maxZoom : 10000, // three days
+            events : {
+              afterSetExtremes : function() {
+                renderStatsTable(shikai.data.getStats(this.getExtremes().min, this.getExtremes().max));
+              }
+            }
+          },
+          yAxis : [{
+            min : 0,
+            title : {
+              text : 'Response Time (ms)',
+              style : {
+                color : '#4572A7'
+              }
+            }
+          }],
+          plotOptions : {
+            arearange : {
+              lineWidth : 1
+            }
+          },
+          series : [{
+            color : '#4572A7',
+            pointInterval : 1000,
+            name : 'Response Time (success)',
+            data : myData.data,
+            tooltip : {
+              yDecimals : 0,
+              ySuffix : 'ms'
+            },
+            yAxis : 0
+          }, {
+            type : 'pie',
+            name : 'Distribution',
+            data : [{
+              name : 'Success',
+              y : myData.ok,
+              color : '#A0B228'
+            }, {
+              name : 'Failures',
+              y : myData.ko,
+              color : '#FF0000'
+            }],
+            center : [820, -20],
+            size : 70,
+            showInLegend : false,
+            dataLabels : {
+              enabled : false
+            }
+          }],
+          title : {
+            text : '<span class="chart_title chart_title_">Response Time</span><br>' + transaction_name,
+            useHTML : true
+          }
+        });
+
+        renderStatsTable(shikai.data.getStats(responseTimeChart.xAxis[0].getExtremes().min, responseTimeChart.xAxis[0].getExtremes().max));
+
+      }
+    </script>
+  </body>
+</html>
