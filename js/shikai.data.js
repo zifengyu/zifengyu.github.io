@@ -254,6 +254,8 @@ shikai.data = ( function() {
       try {
 
         dataMap = $.csv.toArrays(data);
+        
+        delete data;
 
         responseTimeMap = {};
         dataStartTime = 0;
@@ -290,7 +292,7 @@ shikai.data = ( function() {
         filterEndTime = dataEndTime;
         renderResponseTimeChart(first_transaction_name);
       } catch (err) {
-        alert("Parsing Jmeter result file fails.\nPlease make sure it is a csv file with correct format.");
+        alert("Parsing Jmeter result file fails.\nPlease make sure it is a csv file with correct format\n" + err.message);
       }
     };
 
