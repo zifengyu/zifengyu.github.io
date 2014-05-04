@@ -5,7 +5,7 @@ shikai.data = ( function() {
     var dataStartTime = 0, dataEndTime = 0;
     var filterStartTime = 0, filterEndTime = 0;
 
-    var loadFile, getStats, getDataSeris, getFilter, setFilter;
+    var loadFile, getStats, getDataSeris, getFilter, setFilter, parseResultData;
     //----------------- END MODULE SCOPE VARIABLES ---------------
 
     //------------------- BEGIN UTILITY METHODS ------------------
@@ -33,46 +33,9 @@ shikai.data = ( function() {
       var progress = document.querySelector('.percent');
 
       reader.onload = function(e) {
-        var i;
-        var transaction_name, is_success, timestamp, response_time;
-        var first_transaction_name;
 
-        dataMap = $.csv.toArrays(e.target.result);
+        parseResultData(e.target.result);
 
-        responseTimeMap = {};
-        dataStartTime = 0;
-        dataEndTime = 0;
-
-        for ( i = 0; i < dataMap.length; i++) {
-
-          transaction_name = dataMap[i][2];
-          if (first_transaction_name === undefined) {
-            first_transaction_name = transaction_name;
-          }
-          is_success = (dataMap[i][7].toLowerCase() === 'true');
-          timestamp = parseInt(dataMap[i][0]);
-
-          if (dataStartTime === 0 || dataStartTime > timestamp) {
-            dataStartTime = timestamp;
-          }
-          if (dataEndTime === 0 || dataEndTime < timestamp) {
-            dataEndTime = timestamp;
-          }
-
-          response_time = dataMap[i][1];
-          if (responseTimeMap[transaction_name] === undefined) {
-            responseTimeMap[transaction_name] = [];
-          }
-          responseTimeMap[transaction_name].push({
-            timestamp : timestamp,
-            response_time : parseInt(response_time, 10),
-            is_success : is_success
-          });
-
-        }
-        filterStartTime = dataStartTime;
-        filterEndTime = dataEndTime;
-        renderResponseTimeChart(first_transaction_name);
         // Ensure that the progress bar displays 100% at the end.
         progress.style.width = '100%';
         progress.textContent = '100%';
@@ -110,7 +73,8 @@ shikai.data = ( function() {
       reader.onloadstart = function(e) {
         document.getElementById('progress_bar').className = 'loading';
       };
-      var text = reader.readAsText(file);
+
+      reader.readAsText(file);
 
       return true;
     };
@@ -131,7 +95,7 @@ shikai.data = ( function() {
       for (transaction_name in responseTimeMap) {
         var time_arr = [];
         var ok = 0, ko = 0;
-        var min = 0, max = 0, mean = 0, dev = 0, per1 = 0, per2 = 0, req_per_sec = 0;
+        var min = 0, max = 0, mean = 0, dev = 0, per1 = 0, per2 = 0, req_per_sec = 0;        
         for ( i = 0; i < responseTimeMap[transaction_name].length; i++) {
           var timestamp = responseTimeMap[transaction_name][i].timestamp;
           if (timestamp >= start_time && timestamp <= end_time) {
@@ -155,7 +119,7 @@ shikai.data = ( function() {
           mean = parseInt(mean / time_arr.length);
           per1 = time_arr[parseInt((time_arr.length - 1) * 90 / 100)];
           per2 = time_arr[parseInt((time_arr.length - 1) * 95 / 100)];
-          req_per_sec = end_time === start_time ? 0 : (ok + ko) * 1000 * 60 / (end_time - start_time);
+          req_per_sec = end_time === start_time ? 0 : (ok + ko) * 1000 * 60 / (end_time - start_time);          
           for ( i = 0; i < time_arr.length; i++) {
             dev += (time_arr[i] - mean) * (time_arr[i] - mean);
           }
@@ -281,6 +245,55 @@ shikai.data = ( function() {
     };
     //End public method /getTransactionStats/
 
+    parseResultData = function(data) {
+
+      var i;
+      var transaction_name, is_success, timestamp, response_time;
+      var first_transaction_name;
+
+      try {
+
+        dataMap = $.csv.toArrays(data);
+
+        responseTimeMap = {};
+        dataStartTime = 0;
+        dataEndTime = 0;
+
+        for ( i = 0; i < dataMap.length; i++) {
+
+          transaction_name = dataMap[i][2];
+          if (first_transaction_name === undefined) {
+            first_transaction_name = transaction_name;
+          }
+          is_success = (dataMap[i][7].toLowerCase() === 'true');
+          timestamp = parseInt(dataMap[i][0]);
+
+          if (dataStartTime === 0 || dataStartTime > timestamp) {
+            dataStartTime = timestamp;
+          }
+          if (dataEndTime === 0 || dataEndTime < timestamp) {
+            dataEndTime = timestamp;
+          }
+
+          response_time = dataMap[i][1];
+          if (responseTimeMap[transaction_name] === undefined) {
+            responseTimeMap[transaction_name] = [];
+          }
+          responseTimeMap[transaction_name].push({
+            timestamp : timestamp,
+            response_time : parseInt(response_time, 10),
+            is_success : is_success
+          });
+
+        }
+        filterStartTime = dataStartTime;
+        filterEndTime = dataEndTime;
+        renderResponseTimeChart(first_transaction_name);
+      } catch (err) {
+        alert("Parsing Jmeter result file fails.\nPlease make sure it is a csv file with correct format.");
+      }
+    };
+
     // return public methods
     return {
       loadFile : loadFile,
@@ -288,7 +301,8 @@ shikai.data = ( function() {
       getDataSeris : getDataSeris,
       getFilter : getFilter,
       setFilter : setFilter,
-      getTransactionStats : getTransactionStats
+      getTransactionStats : getTransactionStats,
+      parseResultData : parseResultData
     };
     //------------------- END PUBLIC METHODS ---------------------
 

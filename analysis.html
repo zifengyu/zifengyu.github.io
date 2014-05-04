@@ -92,7 +92,7 @@
     <script src="js/shikai.data.js"></script>
 
     <script>
-      var current_sorter = [[0, 1]];
+      var current_sorter = [[0, 0]];
       $(document).ready(function() {
 
         function handleFileSelect(evt) {
@@ -102,8 +102,8 @@
 
 
         $('#container_statistics').tablesorter({
-          cssAsc : "sorted-down",
-          cssDesc : "sorted-up",
+          cssAsc : "sorted-up",
+          cssDesc : "sorted-down",
           headers : {
 
             1 : {
@@ -125,6 +125,10 @@
         ;
 
         document.getElementById("jmeter_file").addEventListener("change", handleFileSelect, false);
+
+        $.get('data/sample.csv', function(data) {//This function run when the request is completed.
+          shikai.data.parseResultData(data);
+        });
 
       });
 
@@ -245,7 +249,7 @@
               count : 1,
               text : 'All'
             }],
-            selected : 3,
+            //selected : 3,
             inputEnabled : false
           },
           xAxis : {
@@ -319,8 +323,21 @@
             size : 70,
             showInLegend : false,
             dataLabels : {
-              enabled : false
+              enabled : true,
+              distance : -18,
+              color : 'white',
+              style : {
+                fontWeight : 'bold'
+              },
+              formatter : function() {
+                var s = "";
+                if (this.percentage >= 1) {
+                  s = Highcharts.numberFormat(this.percentage, 0);
+                }
+                return s;
+              }
             }
+
           }, {
             id : 'full_duration',
             data : [[time_map.data_start_time, 0], [time_map.data_end_time, 0]]
