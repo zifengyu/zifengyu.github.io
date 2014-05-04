@@ -370,11 +370,9 @@ h1 span {
 .statistics {
 	margin-top: 20px;
 	margin-bottom: 20px;
-	color: white;	
+	color: white;
 	display: block;
 	overflow-y: auto;
-
-
 }
 
 .statistics-titre {
@@ -474,4 +472,22 @@ h1 span {
 	filter: alpha(opacity=0);
 }
 
-   
+#progress_bar {	
+	position : absolute;
+	top : -24px;
+	width : 900px;	
+	font-size: 14px;
+	clear: both;
+	opacity: 0;
+	-moz-transition: opacity 1s linear;
+	-o-transition: opacity 1s linear;
+	-webkit-transition: opacity 1s linear;
+}
+#progress_bar.loading {
+	opacity: 1.0;	
+}
+#progress_bar .percent {
+	background-color: #99ccff;
+	height: auto;
+	width: 0;
+}

@@ -25,6 +25,12 @@
             <div class="content-in">
               <div class="article">
 
+                <div id="progress_bar">
+                  <div class="percent" align="middle">
+                    0%
+                  </div>
+                </div>
+
                 <div class="schema geant">
                   <div id="container" class="geant"></div>
                 </div>
@@ -33,7 +39,7 @@
                   <div class="titre">
                     STATISTICS
                   </div>
-                  
+
                   <table id="container_statistics" class="statistics-in extensible-geant">
                     <thead>
                       <tr>
@@ -69,7 +75,7 @@
       </div>
     </div>
     <div class="foot">
-      <div id="progress_bar"><div class="percent">0%</div></div>
+
       <!--<div align="middle"><img alt="Gatling" src="style/logo-gatling.jpg"/></div>-->
     </div>
 
@@ -215,7 +221,11 @@
           chart : {
             renderTo : 'container',
             zoomType : 'x',
-            ignoreHiddenSeries : false            
+            ignoreHiddenSeries : false,
+
+          },
+          credits : {
+            enabled : false
           },
           rangeSelector : {
             buttons : [{
