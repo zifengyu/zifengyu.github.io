@@ -1,20 +1,18 @@
 shikai.data = ( function() {
     //---------------- BEGIN MODULE SCOPE VARIABLES --------------
-    var dataMap, statsMap = {};    
+    var dataMap, statsMap = {};
     var responseTimeMap = {};
     var dataStartTime = 0, dataEndTime = 0;
     var filterStartTime = 0, filterEndTime = 0;
-    
+
     var loadFile, getStats, getDataSeris, getFilter, setFilter;
     //----------------- END MODULE SCOPE VARIABLES ---------------
 
     //------------------- BEGIN UTILITY METHODS ------------------
-    // example : getTrimmedString
+
     //-------------------- END UTILITY METHODS -------------------
 
     //--------------------- BEGIN DOM METHODS --------------------
-    // Begin DOM method /setJqueryMap/
-    // End DOM method /setJqueryMap/
     //---------------------- END DOM METHODS ---------------------
 
     //------------------- BEGIN EVENT HANDLERS -------------------
@@ -23,16 +21,17 @@ shikai.data = ( function() {
 
     //------------------- BEGIN PUBLIC METHODS -------------------
     // Begin public method /loadFile/
-    // Purpose : Adjust configuration of allowed keys
-    // Arguments : A map of settable keys and values
-    // * color_name - color to use
+    // Purpose : Load data from csv file (Jmeter)
+    // Arguments : File path
     // Settings :
-    // * configMap.settable_map declares allowed keys
-    // Returns : true
+    // * dataMap, dataStartTime, dataEndTime, filterStartTime, filterEndTime
+    // Returns : true, render resposne time chart
     // Throws : none
     //
     loadFile = function(file) {
       var reader = new FileReader();
+       var progress = document.querySelector('.percent');
+
       reader.onload = function(e) {
         var i;
         var transaction_name, is_success, timestamp, response_time;
@@ -44,7 +43,7 @@ shikai.data = ( function() {
         dataStartTime = 0;
         dataEndTime = 0;
 
-        for ( i = 0; i < dataMap.length; i++) {         
+        for ( i = 0; i < dataMap.length; i++) {
 
           transaction_name = dataMap[i][2];
           if (first_transaction_name === undefined) {
@@ -72,20 +71,33 @@ shikai.data = ( function() {
 
         }
         filterStartTime = dataStartTime;
-        filterEndTime = dataEndTime;     
+        filterEndTime = dataEndTime;        
         renderResponseTimeChart(first_transaction_name);
       };
+      reader.onprogress = function (evt) {
+    // evt is an ProgressEvent.
+    if (evt.lengthComputable) {
+      var percentLoaded = Math.round((evt.loaded / evt.total) * 100);
+      // Increase the progress bar length.
+      if (percentLoaded < 100) {
+        progress.style.width = percentLoaded + '%';
+        progress.textContent = percentLoaded + '%';
+      }
+    }
+  };
+  reader.onloadstart = function(e) {
+      document.getElementById('progress_bar').className = 'loading';
+    };
       var text = reader.readAsText(file);
 
       return true;
     };
     // End public method /configModule/
 
-    // Begin public method /initModule/
-    // Purpose : Initializes module
-    // Arguments :
-    // * $container the jquery element used by this feature
-    // Returns : true
+    // Begin public method /getStats/
+    // Purpose : Generate statistics data
+    // Arguments : filter start time and end time
+    // Returns : stats object
     // Throws : nonaccidental
     //
     getStats = function(start_time, end_time) {
@@ -175,40 +187,41 @@ shikai.data = ( function() {
 
       return statsMap;
     };
-    // End public method /initModule/
+    // End public method /getStats/
 
     //Start public method /getDataSeris/
     getDataSeris = function(transaction_name) {
       var series = [];
       var i;
       var time_list = [];
-      var ok = 0, ko = 0;
 
       for ( i = 0; i < responseTimeMap[transaction_name].length; i++) {
         if (responseTimeMap[transaction_name][i].is_success) {
-          ok++;
-          if (responseTimeMap[transaction_name][i].timestamp in time_list) {
-          } else {
-            time_list.push(responseTimeMap[transaction_name][i].timestamp);
-            series.push([responseTimeMap[transaction_name][i].timestamp, responseTimeMap[transaction_name][i].response_time]);
-          }
-        } else {
-          ko++;
-        }
+          //if (responseTimeMap[transaction_name][i].timestamp in time_list) {
+          //} else {
+          time_list.push(responseTimeMap[transaction_name][i].timestamp);
+          series.push([responseTimeMap[transaction_name][i].timestamp, responseTimeMap[transaction_name][i].response_time]);
+          //}
+        } //else {
+
+        //}
       }
 
       series.sort(function sort_by_time(a, b) {
         return a[0] - b[0];
       });
 
+      if (series.length === 0) {
+        series = [[dataStartTime, undefined]];
+      }
+
       return {
-        data : series,
-        ok : ok,
-        ko : ko
+        data : series
       };
     };
     //End public method /getDataSeris/
-    
+
+    //Start public method /getFilter/
     getFilter = function() {
       return {
         data_start_time : dataStartTime,
@@ -217,30 +230,34 @@ shikai.data = ( function() {
         filter_end_time : filterEndTime
       };
     };
-    
+    //End public method /getFilter/
+
+    //Start public method /setFilter/
     setFilter = function(filter_map) {
       filterStartTime = filter_map.filter_start_time;
       filterEndTime = filter_map.filter_end_time;
     };
-    
+    //End public method /setFilter/
+
+    //Start public method /getTransactionStats/
     getTransactionStats = function(transaction_name) {
       var ok = 0, ko = 0;
-      
+
       for ( i = 0; i < responseTimeMap[transaction_name].length; i++) {
-        if (responseTimeMap[transaction_name][i].timestamp >= filterStartTime 
-          && responseTimeMap[transaction_name][i].timestamp <= filterEndTime) {
+        if (responseTimeMap[transaction_name][i].timestamp >= filterStartTime && responseTimeMap[transaction_name][i].timestamp <= filterEndTime) {
           if (responseTimeMap[transaction_name][i].is_success) {
             ok++;
           } else {
             ko++;
           }
         }
-      }      
+      }
       return {
         ok : ok,
         ko : ko
       };
     };
+    //End public method /getTransactionStats/
 
     // return public methods
     return {
