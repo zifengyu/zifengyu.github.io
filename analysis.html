@@ -126,7 +126,7 @@
 
         document.getElementById("jmeter_file").addEventListener("change", handleFileSelect, false);
 
-        $.get('data/sample.csv', function(data) {//This function run when the request is completed.
+        $.get('data/sample.csv', function(data) {
           shikai.data.parseResultData(data);
         });
 
