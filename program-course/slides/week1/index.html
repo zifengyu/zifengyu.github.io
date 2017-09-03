@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="en">	
+	<head>
+		<meta charset="utf-8">
+		<title>C语言程序设计 - 第一周</title>
+		<link rel="stylesheet" href="../css/reveal.css">
+		<link rel="stylesheet" href="../css/theme/white.css" id="theme">	
+		<!--Add support for earlier versions of Internet Explorer -->
+		<!--[if lt IE 9]>
+		<script src="../lib/js/html5shiv.js"></script>
+		<![endif]-->
+	</head>
+	
+	<body>
+		<div class="reveal">
+			<!-- Wrap all slides in a single "slides" class -->
+			<div class="slides">
+				<section>
+					<h1>C语言程序设计</h1>
+					<p>第一周</p>		
+				</section>
+
+				<section>
+					<h1>课程介绍</h1>
+					<ul>
+						<li>C语言</li>
+						<li>程序设计思想方法</li>
+						<li>计算机工作的基本原理</li>
+					</ul>									
+				</section>
+
+				<section>
+					<h1>参考书籍</h1>
+					<p>C Primer Plus (第五版)</p>
+					<a href="https://book.douban.com/subject/1240002/">https://book.douban.com/subject/1240002/</a>
+				</section>
+
+				<section>
+					<h1>为什么学？</h1>
+					<ul>
+						<li class="fragment">满足好奇心</li>
+						<li class="fragment">了解原理</li>
+						<li class="fragment">扩展思维</li>
+						<li class="fragment">解决实际问题</li>
+						<li class="fragment">为进一步学习打好基础</li>
+					</ul>
+				</section>
+
+				<section>
+					<h1>如何学好?</h1>
+					<ul>
+						<li class="fragment">上课</li>
+						<li class="fragment">多上机练习</li>
+						<li class="fragment">多看书（别人的代码）</li>
+						<li class="fragment">多百度</li>
+					</ul>						
+				</section>
+
+				<section class="stack past">
+					<section class="past">
+						<h1>C语言历史</h1>
+						<p>AT&T 贝尔实验室</p>
+						<p>1972年 Dennis Ritchie</p>						
+						<p>开发Unix</p>						
+						<p>↓</p>
+					</section class="past">
+
+				    <section class="past">
+						<h1>Unix?</h1>
+						<img src="os.jpg"/>
+						<p>↓</p>
+					</section>
+
+					<section class="past">
+						<h1>机器语言／汇编语言</h1>
+						<ol>
+							<li>将内存单元为2000中的数字复制到寄存器1</li>
+							<li>将内存单元为2004中的数字复制到寄存器2</li>
+							<li>将寄存器2的内容加到寄存器1的内容上，答案保留在寄存器1中</li>
+							<li>将寄存器1的内容复制到内存单元2008</li>
+						</ol>
+						<p>↓</p>
+					</section>
+
+					<section class="past">
+						<h1>高级语言</h1>
+						<p>c = a + b;</p>		
+						<p>↓</p>
+					</section>
+
+					<section class="past">
+						<h1>C语言的优点</h1>
+						<p>高效性</p>
+						<p>可移植性</p>
+						<p>强大的功能和灵活性</p>
+						<p>面向编程人员</p>
+						<p>↓</p>
+					</section>
+
+					<section class="past">
+						<h1>C语言的缺点？</h1>						
+						<p>↓</p>
+					</section>					
+
+					<section class="past">
+						<h1>C语言标准</h1>
+						<p>语言与实现</p>
+						<p>标准库</p>
+						<p>1978年 K&R C</p>
+						<p>1990年 ANSI/ISO C (C90)</p>						
+						<p>1994年 C99标准</p>
+					</section>	
+				</section>
+
+				<section>
+					<h1>使用C语言</h1>
+					<ol>
+						<li>定义程序目标</li>
+						<li>设计程序</li>
+						<li>编写代码</li>
+						<li>编译</li>
+						<li>运行程序</li>
+						<li>测试和调试程序</li>
+						<li>维护和修改程序</li>
+					</ol>					
+				</section>
+
+				<section>
+					<h1>Hello, world</h1>
+					<a href="https://baike.baidu.com/item/hello%20world/85501">https://baike.baidu.com/item/hello%20world/85501</a>											
+				</section>
+
+				<section>
+					<h1>1. 定义程序目标</h1>	
+				</section>
+
+				<section>
+					<h1>2. 设计程序</h1>
+					<p>如何实现功能</p>
+					<p>如何组织代码</p>
+					<p>采用何种数据结构／算法</p>
+					<p>等等等等。。。</p>					
+				</section>
+
+				<section>
+					<h1>3. 编写代码</h1>
+					<pre>
+						<code data-trim>
+#include &lt;stdio.h&gt;
+
+int main(void)
+{
+    printf("Hello, world.\n");
+    return 0;
+}
+						</code>
+					</pre>	
+				</section>
+				<section class="stack past">
+					<section class="past">
+						<h1>4. 编译</h1>
+						<ol>
+							<li>语法检查</li>
+							<li>将源代码转换成可执行代码</li>
+							<li>引入库代码</li>
+						</ol>			
+						<p>↓</p>
+					</section>
+
+					<section class="past">
+						<h1>编译型语言</h1>
+						<h1>解释型语言</h1>							
+					</section>
+				</section>
+
+				<section>
+					<h1>5. 运行程序</h1>	
+				</section>
+				
+				<section>
+					<h1>6. 测试和调试程序</h1>	
+					<p>bug</p>
+					<p>debug</p>
+				</section>
+				
+				<section>
+					<h1>7. 维护和修改程序</h1>	
+				</section>
+
+				<section>
+					<h1>总结</h1>
+					<p>课程介绍</p>
+					<p>学习方法</p>
+					<p>C语言历史</p>
+					<p>操作系统</p>
+					<p>高级语言</p>
+					<p>Hello, world</p>
+				</section>
+				<section class="stack past">
+					<section class="past">
+						<h1>课后练习</h1>
+						<p>安装Visual Studio Code</p>
+						<p>↓</p>
+					</section>
+					<section class="past">
+						<h1>下载VS Code</h1>
+						<a href="https://code.visualstudio.com/">https://code.visualstudio.com/</a>
+						<img src="vscode_download.png" height="350"/>
+						<p>↓</p>
+					</section>
+					<section class="past">
+						<h1>安装C语言插件</h1>						
+						<img src="vscode_plugin.png" height="350"/>
+						<p>↓</p>
+					</section>
+					<section class="past">
+						<h1>创建第一个C程序</h1>						
+						<img src="hello_world.png" height="350"/>						
+					</section>
+				</section>
+
+				<section class="stack past">
+					<section class="past">
+						<h1>课后练习</h1>
+						<p>C语言编译器: MinGW</p>
+						<p>↓</p>
+					</section>
+					<section class="past">
+						<h1>安装器</h1>
+						<p>下载MinGW安装器并安装</p>
+						<a href="https://sourceforge.net/projects/mingw/files/Installer/">https://sourceforge.net/projects/mingw/files/Installer/</a>
+						<img src="mingw_installer.png" height="350"/>
+						<p>↓</p>
+					</section>
+					<section class="past">
+						<h1>安装MinGW组件</h1>
+						<p>选择mingw32-base和mingw32-gcc-g++后，点击Installation->Apply Changes</p>						
+						<img src="mingw_installation.png" height="350"/>
+						<p>↓</p>
+					</section>
+					<section class="past">
+						<h1>安装完成</h1>						
+						<p>C:\WinGW\bin目录下包含gcc.exe</p>
+						<img src="mingw_gcc.png" height="350"/>						
+						<p>↓</p>
+					</section>
+					<section>
+						<h1>设置环境变量PATH</h1>
+						<img src="path.png" height="350"/>
+					</section>
+					<section>
+						<h1>编译运行</h1>
+						<p>编译并运行Hello, world程序</p>
+						<img src="compile.png" height="350"/>						
+					</section>
+				</section>
+			</div>
+		</div>
+		<script src="../lib/js/head.min.js"></script>
+		<script src="../js/reveal.js"></script>
+		
+		<script>
+			// Required, even if empty.
+			Reveal.initialize({				
+				dependencies: [
+					// Syntax highlight for <code> elements
+					{ src: '../plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } }
+				]			
+			});
+	   </script>	  
+	</body>
+</html>
